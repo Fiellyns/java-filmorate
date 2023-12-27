@@ -36,7 +36,7 @@ public class FilmController {
 
     @PutMapping
     public Film putFilm(@Valid @RequestBody Film film) {
-        if (!films.containsKey(film.getId())){
+        if (!films.containsKey(film.getId())) {
                 log.warn("Произошла замена ID");
                 throw new ValidationException("ID не может быть изменён.");
             } else {
