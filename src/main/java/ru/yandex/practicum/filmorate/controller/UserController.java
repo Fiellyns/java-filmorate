@@ -24,13 +24,14 @@ public class UserController {
 
     private int idForUser = 0;
 
-    public int idGeneration () {
+    public int idGeneration() {
         return ++idForUser;
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
 
+        //Если я убираю null, то не проходит тест на Постмане.
         if (user.getName() == null || user.getName().isBlank()) {
             log.info("Не найдено имя. Теперь имя = логин");
             user.setName(user.getLogin());
@@ -47,7 +48,7 @@ public class UserController {
 
     @PutMapping
     public User putUser(@Valid @RequestBody User user) {
-        if (!users.containsKey(user.getId())){
+        if (!users.containsKey(user.getId())) {
                 log.warn("Произошла замена ID");
                 throw new ValidationException("ID не может быть изменён.");
         } else {
