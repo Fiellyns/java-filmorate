@@ -1,8 +1,15 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -18,7 +25,11 @@ import java.util.Set;
 
 class FilmControllerTest {
 
-    private final FilmController filmController = new FilmController();
+    private final FilmStorage filmStorage = new InMemoryFilmStorage();
+    private final UserStorage userStorage = new InMemoryUserStorage();
+    private final UserService userService = new UserService(userStorage);
+    private final FilmService filmService = new FilmService(filmStorage, userService);
+    private FilmController filmController;
     private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
     private final Validator validator = validatorFactory.getValidator();
 
@@ -28,6 +39,11 @@ class FilmControllerTest {
             .releaseDate(LocalDate.parse("1895-12-28").plusMonths(1))
             .duration(100)
             .build();
+
+    @BeforeEach
+    public void beforeEach() {
+        filmController = new FilmController(filmService);
+    }
 
     @Test
     void shouldCreateFilm() {
