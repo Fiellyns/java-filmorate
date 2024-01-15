@@ -23,16 +23,15 @@ class UserControllerTest {
 
     private final UserStorage userStorage = new InMemoryUserStorage();
     private final UserService userService = new UserService(userStorage);
-    private UserController userController;
     private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
     private final Validator validator = validatorFactory.getValidator();
-
     private final User user = User.builder()
             .login("a")
             .name("nisi eiusmod")
             .email("gh1u@mail.ru")
             .birthday(LocalDate.now())
             .build();
+    private UserController userController;
 
     @BeforeEach
     public void beforeEach() {
@@ -55,7 +54,7 @@ class UserControllerTest {
                     .login(login)
                     .build();
 
-             Set<ConstraintViolation<User>> violations = validator.validate(userWithIncorrectLogin);
+            Set<ConstraintViolation<User>> violations = validator.validate(userWithIncorrectLogin);
 
             Assertions.assertFalse(violations.isEmpty());
         });
