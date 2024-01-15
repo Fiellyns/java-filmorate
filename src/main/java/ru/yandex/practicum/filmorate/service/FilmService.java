@@ -3,12 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,17 +14,12 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserService userService;
-    private int idNext = 1;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
-        this.userService = userService;
-    }
-
-    private int getNextId() {
-        return idNext++;
+        this.userStorage = userStorage;
     }
 
     public List<Film> getFilms() {
@@ -34,42 +27,26 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        film.setId(getNextId());
-        log.info("Добавлен новый фильм");
         return filmStorage.createFilm(film);
     }
 
     public Film update(Film film) {
-        if (filmStorage.findFilmById(film.getId()) == null) {
-            log.warn("Невозможно обновить фильм");
-            throw new FilmDoesNotExistException();
-        } else {
-            if (film.getReleaseDate().isBefore(LocalDate.parse("1895-12-28"))) {
-                log.warn("Введена неверная дата фильма");
-                throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
-            }
-            log.info("Фильм с id: {} был обновлен", film.getId());
-            return filmStorage.update(film);
-        }
+        return filmStorage.update(film);
     }
 
     public Film findFilmById(int id) {
-        Film film = filmStorage.findFilmById(id);
-        if (film == null) {
-            throw new FilmDoesNotExistException();
-        }
-        return film;
+        return filmStorage.findFilmById(id);
     }
 
     public void addLike(int filmId, int userId) {
-        if (userService.findUserById(userId) != null) {
+        if (userStorage.findUserById(userId) != null) {
             findFilmById(filmId).getLikes().add(userId);
             log.info("Пользователь с userId {} поставил фильму с filmId {} лайк", userId, filmId);
         }
     }
 
     public void deleteLike(int filmId, int userId) {
-        if (userService.findUserById(userId) != null) {
+        if (userStorage.findUserById(userId) != null) {
             findFilmById(filmId).getLikes().remove(userId);
             log.info("Лайк пользователя с userId {} фильму с filmId {} удалён", userId, filmId);
         }

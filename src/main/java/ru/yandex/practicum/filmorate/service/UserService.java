@@ -4,12 +4,9 @@ import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,15 +15,10 @@ import java.util.Set;
 @Service
 public class UserService {
     private final UserStorage userStorage;
-    private int idNext = 1;
 
     @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
-    }
-
-    private int getNextId() {
-        return idNext++;
     }
 
     public List<User> getUsers() {
@@ -34,44 +26,15 @@ public class UserService {
     }
 
     public User create(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Введена неверная дата рождения");
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
-        user.setId(getNextId());
-        log.info("Добавлен новый юзер");
         return userStorage.create(user);
     }
 
     public User update(User user) {
-        if (userStorage.findUserById(user.getId()) == null) {
-            log.warn("Невозможно обновить пользователя");
-            throw new UserDoesNotExistException();
-        } else {
-
-            if (user.getBirthday().isAfter(LocalDate.now())) {
-                log.warn("Введена неверная дата рождения");
-                throw new ValidationException("Дата рождения не может быть в будущем");
-            }
-
-            if (user.getName() == null || user.getName().isBlank()) {
-                user.setName(user.getLogin());
-            }
-            log.info("Юзер с id: {} был обновлен", user.getId());
-            return userStorage.update(user);
-        }
+        return userStorage.update(user);
     }
 
     public User findUserById(int id) {
-        User user = userStorage.findUserById(id);
-        if (user == null) {
-            log.warn("Пользователя с id {} не найдено", id);
-            throw new UserDoesNotExistException();
-        }
-        return user;
+        return userStorage.findUserById(id);
     }
 
     public void addFriend(int userId, int friendId) {
