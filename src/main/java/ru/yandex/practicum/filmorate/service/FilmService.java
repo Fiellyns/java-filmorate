@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -39,17 +40,15 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
-        if (userStorage.findUserById(userId) != null) {
-            findFilmById(filmId).getLikes().add(userId);
-            log.info("Пользователь с userId {} поставил фильму с filmId {} лайк", userId, filmId);
-        }
+        User user = userStorage.findUserById(userId); // Проверка, на существование юзера
+        findFilmById(filmId).getLikes().add(userId);
+        log.info("Пользователь с userId {} поставил фильму с filmId {} лайк", userId, filmId);
     }
 
     public void deleteLike(int filmId, int userId) {
-        if (userStorage.findUserById(userId) != null) {
-            findFilmById(filmId).getLikes().remove(userId);
-            log.info("Лайк пользователя с userId {} фильму с filmId {} удалён", userId, filmId);
-        }
+        User user = userStorage.findUserById(userId);
+        findFilmById(filmId).getLikes().remove(userId);
+        log.info("Лайк пользователя с userId {} фильму с filmId {} удалён", userId, filmId);
     }
 
     public List<Film> getMostPopularFilms(int count) {

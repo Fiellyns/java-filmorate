@@ -40,21 +40,17 @@ public class UserService {
     public void addFriend(int userId, int friendId) {
         User user = findUserById(userId);
         User friend = findUserById(friendId);
-        if (user != null && friend != null) {
-            user.getFriends().add(friendId);
-            friend.getFriends().add(userId);
-            log.info("Пользователи {} и {} теперь друзья", user, friend);
-        }
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
+        log.info("Пользователи {} и {} теперь друзья", user, friend);
     }
 
     public void removeFromFriends(int userId, int friendId) {
         User user = findUserById(userId);
         User friend = findUserById(friendId);
-        if (user != null && friend != null) {
-            user.getFriends().remove(friendId);
-            friend.getFriends().remove(userId);
-            log.info("Пользователи {} и {} теперь не являются друзья", user, friend);
-        }
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+        log.info("Пользователи {} и {} теперь не являются друзья", user, friend);
     }
 
     public List<User> getAllFriends(int userId) {

@@ -37,7 +37,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        if (findFilmById(film.getId()) == null) {
+        if (!films.containsKey(film.getId())) {
             log.warn("Невозможно обновить фильм");
             throw new FilmDoesNotExistException();
         } else {
