@@ -1,70 +1,64 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping ("/users")
+@RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
+
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public Collection<User> getAllUsers() {
-        return users.values();
-    }
-
-    private int idForUser = 0;
-
-    public int idGeneration() {
-        return ++idForUser;
+        return userService.getUsers();
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-
-        //Если я убираю null, то не проходит тест на Постмане.
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Не найдено имя. Теперь имя = логин");
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Введена неверная дата рождения.");
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
-        user.setId(idGeneration());
-        log.info("Добавлен новый юзер");
-        users.put(user.getId(), user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User putUser(@Valid @RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-                log.warn("Произошла замена ID");
-                throw new ValidationException("ID не может быть изменён.");
-        } else {
+        return userService.update(user);
+    }
 
-            if (user.getBirthday().isAfter(LocalDate.now())) {
-                log.warn("Введена неверная дата рождения.");
-                throw new ValidationException("Дата рождения не может быть в будущем.");
-            }
+    @GetMapping("/{id}")
+    public User findUserById(@PathVariable int id) {
+        return userService.findUserById(id);
+    }
 
-            if (user.getName() == null || user.getName().isBlank()) {
-                log.info("Не найдено имя. Теперь имя = логин");
-                user.setName(user.getLogin());
-            }
-            log.info("Юзер с id: " + user.getId() + " был обновлен.");
-            users.put(user.getId(), user);
-            return user;
-        }
+    @PutMapping(value = "/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
+    public void removeFromFriends(@PathVariable int id, @PathVariable int friendId) {
+        userService.removeFromFriends(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getAllFriends(@PathVariable int id) {
+        return userService.getAllFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 }

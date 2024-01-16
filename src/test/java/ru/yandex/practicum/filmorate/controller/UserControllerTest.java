@@ -1,8 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -16,16 +20,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class UserControllerTest {
-    private final UserController userController = new UserController();
+
+    private final UserStorage userStorage = new InMemoryUserStorage();
+    private final UserService userService = new UserService(userStorage);
     private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
     private final Validator validator = validatorFactory.getValidator();
-
     private final User user = User.builder()
             .login("a")
             .name("nisi eiusmod")
             .email("gh1u@mail.ru")
             .birthday(LocalDate.now())
             .build();
+    private UserController userController;
+
+    @BeforeEach
+    public void beforeEach() {
+        userController = new UserController(userService);
+    }
 
     @Test
     void shouldCreateUser() {
@@ -43,7 +54,7 @@ class UserControllerTest {
                     .login(login)
                     .build();
 
-             Set<ConstraintViolation<User>> violations = validator.validate(userWithIncorrectLogin);
+            Set<ConstraintViolation<User>> violations = validator.validate(userWithIncorrectLogin);
 
             Assertions.assertFalse(violations.isEmpty());
         });

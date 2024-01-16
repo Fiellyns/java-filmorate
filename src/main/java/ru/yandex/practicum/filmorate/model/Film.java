@@ -6,16 +6,20 @@ import ru.yandex.practicum.filmorate.exception.ReleaseDate;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@Builder (toBuilder = true)
+@Builder(toBuilder = true)
 public class Film {
-    private int id = 0;
+
+    private final Set<Integer> likes = new HashSet<>();
+    private int id;
     @NotBlank
     @NotEmpty(message = "Название не должно быть пустым")
     private String name;
     @NotNull
-    @Size (max = 200, message = "Максимальная длина описания — 200 символов")
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
     @NotNull
     @ReleaseDate
