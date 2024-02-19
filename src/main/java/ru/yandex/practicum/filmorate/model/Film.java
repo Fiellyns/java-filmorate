@@ -13,7 +13,6 @@ import java.util.Set;
 @Builder(toBuilder = true)
 public class Film {
 
-    private final Set<Integer> likes = new HashSet<>();
     private int id;
     @NotBlank
     @NotEmpty(message = "Название не должно быть пустым")
@@ -27,4 +26,7 @@ public class Film {
     @Positive(message = "Продолжительность фильма не может быть отрицательной")
     @NotNull
     private int duration;
+    @NotNull
+    private Mpa mpa;
+    private Set<Genre> genres = new HashSet<>();
 }
