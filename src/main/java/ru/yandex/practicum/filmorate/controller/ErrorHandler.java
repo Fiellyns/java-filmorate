@@ -18,25 +18,25 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFilmNotFound(FilmNotFoundException e) {
-        return new ErrorResponse("Фильм не найден");
+        return new ErrorResponse("Фильм c " + e.getMessage() + " не найден");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFound(UserNotFoundException e) {
-        return new ErrorResponse("Пользователь не найден");
+        return new ErrorResponse("Пользователь с " + e.getMessage() + " не найден");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFilmNotFound(GenreNotFoundException e) {
-        return new ErrorResponse("Жанр не найден");
+        return new ErrorResponse("Жанр с " + e.getMessage() + " не найден");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFound(MpaNotFoundException e) {
-        return new ErrorResponse("Рейтинг не найден");
+        return new ErrorResponse("Рейтинг с " + e.getMessage() + " не найден");
     }
 
     @ExceptionHandler

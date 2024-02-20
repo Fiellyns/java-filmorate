@@ -1,4 +1,4 @@
-INSERT INTO ratings(rating_name) VALUES ('G'),
+INSERT INTO ratings_mpa(rating_name) VALUES ('G'),
     	('PG'),
 	    ('PG-13'),
 	    ('R'),

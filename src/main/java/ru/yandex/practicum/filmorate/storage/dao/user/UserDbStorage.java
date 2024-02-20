@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -47,14 +47,14 @@ public class UserDbStorage implements UserStorage {
             return jdbcTemplate.queryForObject(sql, new UserMapper(), id);
         } catch (Exception e) {
             log.warn("Пользователь с id_{} не найден", id);
-            throw new UserNotFoundException();
+            throw new UserNotFoundException("id_" + id);
         }
     }
 
     @Override
-    public Collection<User> getUsers() {
+    public List<User> getUsers() {
         String sql = "select * from users";
-        Collection<User> usersFromDb = jdbcTemplate.query(sql, new UserMapper());
+        List<User> usersFromDb = jdbcTemplate.query(sql, new UserMapper());
         log.info("Возвращены все пользователи: {}.", usersFromDb);
         return usersFromDb;
     }

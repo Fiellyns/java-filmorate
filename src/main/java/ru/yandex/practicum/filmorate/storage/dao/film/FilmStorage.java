@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate.storage.dao.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface FilmStorage {
-    Collection<Film> getAllFilms();
+    List<Film> getAllFilms();
 
     Film createFilm(Film film);
 
@@ -13,5 +13,5 @@ public interface FilmStorage {
 
     Film findFilmById(int id);
 
-    Collection<Film> getMostPopularFilms(int count);
+    List<Film> getMostPopularFilms(int count);
 }

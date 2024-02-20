@@ -24,11 +24,13 @@ public class MpaController {
 
     @GetMapping
     public Collection<Mpa> getAllMpa() {
+        log.debug("Поступил GET-запрос для /mpa");
         return mpaService.getAllMpa();
     }
 
     @GetMapping("/{id}")
     public Mpa getMpaById(@PathVariable Integer id) {
+        log.debug("Поступил GET-запрос для /mpa/{}", id);
         return mpaService.getMpaById(id);
     }
 }

@@ -45,7 +45,7 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
             return jdbcTemplate.queryForObject(sql, new GenreMapper(), genreId);
         } catch (Exception e) {
             log.warn("Жанр с id_" + genreId + " не найден!");
-            throw new GenreNotFoundException();
+            throw new GenreNotFoundException("id_" + genreId);
         }
     }
 

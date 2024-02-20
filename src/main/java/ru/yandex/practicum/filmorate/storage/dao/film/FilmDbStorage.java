@@ -12,10 +12,7 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -78,22 +75,22 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film findFilmById(int id) {
         try {
-            String sql = "select * from films as f join ratings as r on r.rating_id = f.rating_id where film_id = ?;";
+            String sql = "select * from films as f join ratings_mpa as r on r.rating_id = f.rating_id where film_id = ?;";
             return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, id);
         } catch (Exception e) {
             log.warn("Фильм с id_{} не найден", id);
-            throw new FilmNotFoundException();
+            throw new FilmNotFoundException("id_" + id);
         }
     }
 
     @Override
-    public Collection<Film> getAllFilms() {
+    public List<Film> getAllFilms() {
         String sql = "select * from films";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
-    public Collection<Film> getMostPopularFilms(int count) {
+    public List<Film> getMostPopularFilms(int count) {
         String getPopularQuery = "select * from films as f left join likes " +
                 "as l on l.film_id = f.film_id group by f.film_id, l.user_id " +
                 "order by count(l.user_id) desc limit ?";

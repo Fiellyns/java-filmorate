@@ -77,11 +77,14 @@ class FilmControllerTest {
     public void shouldNotPassDescriptionValidation() {
         Film film = Film.builder()
                 .name("rudsruew")
-                .description("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                .description("shouldNotPassDescriptionValidation" +
+                             "shouldNotPassDescriptionValidation" +
+                             "shouldNotPassDescriptionValidation" +
+                             "shouldNotPassDescriptionValidation" +
+                             "shouldNotPassDescriptionValidation" +
+                             "shouldNotPassDescriptionValidation" +
+                             "shouldNotPassDescriptionValidation" +
+                             "shouldNotPassDescriptionValidation")
                 .duration(120)
                 .releaseDate(LocalDate.now())
                 .mpa(new Mpa(1, "G"))

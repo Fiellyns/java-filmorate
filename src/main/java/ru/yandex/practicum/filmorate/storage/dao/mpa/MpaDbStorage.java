@@ -22,17 +22,17 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Mpa getMpaById(int mpaId) {
         try {
-            String sql = "select * from ratings where rating_id = ?";
+            String sql = "select * from ratings_mpa where rating_id = ?";
             return jdbcTemplate.queryForObject(sql, new MpaMapper(), mpaId);
         } catch (Exception e) {
             log.warn("Рейтинг с id_" + mpaId + " не найден!");
-            throw new MpaNotFoundException();
+            throw new MpaNotFoundException("id_" + mpaId);
         }
     }
 
     @Override
     public List<Mpa> getAllMpa() {
-        String sql = "select * from ratings";
+        String sql = "select * from ratings_mpa";
         return jdbcTemplate.query(sql, new MpaMapper());
     }
 }

@@ -5,12 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.dao.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.dao.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -41,24 +42,26 @@ public class FilmService {
         return filmStorage.findFilmById(id);
     }
 
-    public Collection<Film> getFilms() {
+    public List<Film> getFilms() {
         return filmStorage.getAllFilms();
     }
 
-    public Collection<Film> getMostPopularFilms(int count) {
+    public List<Film> getMostPopularFilms(int count) {
         return filmStorage.getMostPopularFilms(count);
     }
 
 
     public void addLike(int filmId, int userId) {
-        userStorage.findUserById(userId);
-        filmStorage.findFilmById(filmId);
-        likeStorage.add(filmId, userId);
+        User user = userStorage.findUserById(userId);
+        Film film = filmStorage.findFilmById(filmId);
+        log.debug("Пользователь id_{} и фильм id_{} существуют.", user.getId(), film.getId());
+        likeStorage.add(film.getId(), user.getId());
     }
 
     public void deleteLike(int filmId, int userId) {
-        userStorage.findUserById(userId);
-        filmStorage.findFilmById(filmId);
-        likeStorage.delete(filmId, userId);
+        User user = userStorage.findUserById(userId);
+        Film film = filmStorage.findFilmById(filmId);
+        log.debug("Пользователь id_{} и фильм id_{} существуют.", user.getId(), film.getId());
+        likeStorage.delete(film.getId(), user.getId());
     }
 }
