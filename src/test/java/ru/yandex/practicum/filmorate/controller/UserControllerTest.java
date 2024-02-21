@@ -1,28 +1,34 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.friendship.FriendshipStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserControllerTest {
 
-    private final UserStorage userStorage = new InMemoryUserStorage();
-    private final UserService userService = new UserService(userStorage);
+    private final UserService userService;
+    private final FriendshipStorage friendshipStorage;
     private final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
     private final Validator validator = validatorFactory.getValidator();
     private final User user = User.builder()
@@ -31,64 +37,162 @@ class UserControllerTest {
             .email("gh1u@mail.ru")
             .birthday(LocalDate.now())
             .build();
-    private UserController userController;
 
-    @BeforeEach
-    public void beforeEach() {
-        userController = new UserController(userService);
+
+    @Test
+    public void shouldCreateUser() {
+        User newUser = userService.create(user);
+        assertEquals("gh1u@mail.ru", userService.findUserById(newUser.getId()).getEmail());
     }
 
     @Test
-    void shouldCreateUser() {
-        userController.createUser(user);
-        assertEquals(userController.getAllUsers().size(), 1);
+    public void shouldUpdateUser() {
+        User newUser = userService.create(user);
+
+        User userUpdate = User.builder()
+                .id(newUser.getId())
+                .login("a")
+                .name("nisi eiusmod")
+                .email("gh1u@mail.ru")
+                .birthday(LocalDate.now())
+                .build();
+        User result = userService.update(userUpdate);
+
+        assertEquals(userUpdate, userService.findUserById(result.getId()));
     }
 
     @Test
-    void shouldNotCreateUserIfLoginIsWrong() {
-        String[] logins = {"dolore ullamco", "d olore ullamc o", "", " ", null};
-
-        Arrays.stream(logins).forEach(login -> {
-            User userWithIncorrectLogin = user
-                    .toBuilder()
-                    .login(login)
-                    .build();
-
-            Set<ConstraintViolation<User>> violations = validator.validate(userWithIncorrectLogin);
-
-            Assertions.assertFalse(violations.isEmpty());
-        });
-    }
-
-    @Test
-    void shouldNotCreateUserIfEmailIsWrong() {
-        String[] emails = {"user @domain.com", ".user@domain.co.in", "@domain.com", "user?name@doma in.co.in",
-                "@domain.com",
-                "",
-                null};
-
-        Arrays.stream(emails).forEach(email -> {
-            User userWithIncorrectEmail = user
-                    .toBuilder()
-                    .email(email)
-                    .build();
-
-            Set<ConstraintViolation<User>> violations = validator.validate(userWithIncorrectEmail);
-
-            Assertions.assertFalse(violations.isEmpty());
-        });
-    }
-
-    @Test
-    void shouldNotCreateUserIfBirthdayIsWrong() {
-        User userWithIncorrectBirthday = user
-                .toBuilder()
-                .birthday(LocalDate.now().plusDays(1))
+    public void shouldCreateUserWithEmptyName() {
+        User newUser = User.builder()
+                .login("ab")
+                .email("gh1u@mail.ru")
+                .birthday(LocalDate.now())
                 .build();
 
-        Set<ConstraintViolation<User>> violations = validator.validate(userWithIncorrectBirthday);
+        User result = userService.create(newUser);
 
-        Assertions.assertFalse(violations.isEmpty());
-        Assertions.assertEquals(1, violations.size());
+        assertEquals("ab", result.getName());
+    }
+
+    @Test
+    void shouldNotPassEmailValidation() {
+        User user = User.builder()
+                .login("a")
+                .name("nisi eiusmod")
+                .email("gh1umail.ru")
+                .birthday(LocalDate.now())
+                .build();
+
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    public void shouldNotPassLoginValidationWithEmptyLogin() {
+        User newUser = User.builder()
+                .login("")
+                .name("nisi eiusmod")
+                .email("gh1u@mail.ru")
+                .birthday(LocalDate.now())
+                .build();
+
+        Set<ConstraintViolation<User>> violations = validator.validate(newUser);
+        assertEquals(3, violations.size());
+    }
+
+    @Test
+    public void shouldNotPassBirthdayValidation() {
+        User user = User.builder()
+                .login("a")
+                .name("nisi eiusmod")
+                .email("gh1u@mail.ru")
+                .birthday(LocalDate.of(3000, 8, 15))
+                .build();
+
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    public void shouldAddFriend() {
+        User newUser = userService.create(user);
+        User friend = User.builder()
+                .login("ab")
+                .name("atwatwa")
+                .email("twatwtwe@mail.ru")
+                .birthday(LocalDate.now())
+                .build();
+        User friendUser = userService.create(friend);
+
+        userService.addFriend(newUser.getId(), friendUser.getId());
+
+        assertEquals(List.of(friendUser), userService.getAllFriends(newUser.getId()));
+    }
+
+    @Test
+    public void shouldDeleteFriend() {
+        User newUser = userService.create(user);
+        User friend = User.builder()
+                .login("ab")
+                .name("atwatwa")
+                .email("twatwtwe@mail.ru")
+                .birthday(LocalDate.now())
+                .build();
+        User friendUser = userService.create(friend);
+
+        userService.addFriend(newUser.getId(), friendUser.getId());
+        userService.removeFromFriends(newUser.getId(), friendUser.getId());
+
+        assertEquals(Collections.emptyList(), List.copyOf(friendshipStorage.findFriendsFromUserId(newUser.getId())));
+    }
+
+    @Test
+    public void shouldFindMutualFriend() {
+        User newUser = userService.create(user);
+        User friend = User.builder()
+                .login("ab")
+                .name("atwatwa")
+                .email("twatwtwe@mail.ru")
+                .birthday(LocalDate.now())
+                .build();
+        User friendUser = userService.create(friend);
+        User common = User.builder()
+                .login("ab")
+                .name("wyawye dtfe")
+                .email("twatxe@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        User commonFriend = userService.create(common);
+
+        userService.addFriend(newUser.getId(), commonFriend.getId());
+        userService.addFriend(friendUser.getId(), commonFriend.getId());
+
+        List<User> commons = userService.getCommonFriends(newUser.getId(), friendUser.getId());
+
+        assertEquals(List.of(commonFriend), commons);
+    }
+
+    @Test
+    public void shouldReturnAllFriends() {
+        User newUser = userService.create(user);
+        User friend = User.builder()
+                .login("Iris")
+                .name("Melissa")
+                .email("stormy@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        User friendUser = userService.create(friend);
+
+        User common = User.builder()
+                .login("Rose")
+                .name("Melissa")
+                .email("rose@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        User commonFriend = userService.create(common);
+        userService.addFriend(newUser.getId(), friendUser.getId());
+        userService.addFriend(newUser.getId(), commonFriend.getId());
+
+        assertEquals(List.of(friendUser, commonFriend), userService.getAllFriends(newUser.getId()));
     }
 }
