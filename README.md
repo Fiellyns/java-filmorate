@@ -41,5 +41,16 @@
     FROM users
     WHERE user_id = 5;
 ```
-
 </details>  
+
+# Запуск проекта
+Для запуска проекта необходимо:
+
+1. Клонировать репозиторий.
+2. Перейти в директорию проекта.
+3. Запустите проект с помощью Maven.
+```sh
+git clone https://github.com/Fiellyns/java-filmorate.git
+cd java-filmorate
+mvn spring-boot:run
+```
