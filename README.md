@@ -1,4 +1,4 @@
-# Java-Filmorate
+# FilmRate 
 Бекэнд социальной сети, которая поможет выбрать кино на основе того, какие фильмы вы и ваши друзья смотрите и какие оценки им ставите
 
 ## Возможности приложения:
@@ -50,7 +50,7 @@
 2. Перейти в директорию проекта.
 3. Запустите проект с помощью Maven.
 ```sh
-git clone https://github.com/Fiellyns/java-filmorate.git
-cd java-filmorate
+git clone https://github.com/Fiellyns/FilmRate .git
+cd FilmRate 
 mvn spring-boot:run
 ```
